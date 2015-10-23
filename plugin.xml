@@ -19,7 +19,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 xmlns:android="http://schemas.android.com/apk/res/android"
            id="com.hiddentao.cordova.filepath"
-      version="1.0.0">
+      version="1.0.1">
     <name>FilePath</name>
     <description>Cordova filepath plugin</description>
     <license>Apache 2.0</license>
