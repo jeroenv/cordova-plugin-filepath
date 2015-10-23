@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -36,35 +38,38 @@ public class FilePath extends CordovaPlugin {
      * @return              A PluginResult object with a status and message.
      */
     @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
-        try {
+    public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) {
+
             if (action.equals("resolveNativePath")) {
-              /* content:///... */
-                String uriStr = args.getString(0);
-                Uri pvUrl = Uri.parse(uriStr);
+                cordova.getThreadPool().execute(new Runnable() {
+                    public void run() {
+                        try {
+                          /* content:///... */
+                            String uriStr = args.getString(0);
+                            Uri pvUrl = Uri.parse(uriStr);
 
-                Log.d(TAG, "URI: " + uriStr);
+                            Log.d(TAG, "URI: " + uriStr);
 
-                Context appContext = this.cordova.getActivity().getApplicationContext();
-                String filePath = getPath(appContext, pvUrl);
+                            Context appContext = cordova.getActivity().getApplicationContext();
+                            String filePath = getPath(appContext, pvUrl);
 
-                if (null == filePath) {
-                    throw new Exception("Unable to resolve filesystem path for " + uriStr);
-                }
+                            if (null == filePath) {
+                                throw new Exception("Unable to resolve filesystem path for " + uriStr);
+                            }
 
-                Log.d(TAG, "Filepath: " + filePath);
+                            Log.d(TAG, "Filepath: " + filePath);
 
-                callbackContext.success(filePath);
-
+                            callbackContext.success(filePath);
+                        }catch(Exception e){
+                            e.printStackTrace();
+                            callbackContext.error(e.toString());
+                        }
+                    }
+                });
                 return true;
-            } else {
-                throw new Exception("Invalid action");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            callbackContext.error(e.toString());
-            return false;
-        }
+
+        return false;
     }
 
 
